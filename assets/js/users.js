@@ -7,6 +7,8 @@
 
   let allUsers = [];
   let deleteUserId = null;
+  let perPage = 10;               // default show entries
+  let currentUsersView = [];      // data hasil filter/search (atau full)
 
   /* =========================================================
     DOM ELEMENTS (AMBIL SEKALI, GLOBAL SCOPE)
@@ -22,7 +24,8 @@
     modalTitle,
     deleteModal,
     detailModal,
-    detailContent;
+    detailContent,
+    pageSizeEl;
 
   function cacheDom() {
     userForm = document.getElementById("userForm");
@@ -38,6 +41,8 @@
     deleteModal = document.getElementById("deleteModal");
     detailModal = document.getElementById("detailModal");
     detailContent = document.getElementById("detailContent");
+    pageSizeEl = document.getElementById("userPageSize");
+
   }
 
   /* =========================================================
@@ -103,9 +108,15 @@
       const data = await parseApiResponse(res);
 
       allUsers = Array.isArray(data) ? data : [];
-      renderUsers(allUsers);
-      updateSummaryCards(allUsers);
+      currentUsersView = [...allUsers];
+      if (pageSizeEl) {
+        perPage = parseInt(pageSizeEl.value, 10) || perPage;
+      }
+      refreshTable();
+      updateSummaryCards(currentUsersView);
     } catch (err) {
+      allUsers = [];
+      currentUsersView = [];
       renderUsers([]);
       updateSummaryCards([]);
       showToast(err.message, "error");
@@ -121,7 +132,7 @@
     const keyword = e.target.value.toLowerCase();
     const safe = (v) => (v || "").toLowerCase();
 
-    const filtered = allUsers.filter(
+    currentUsersView = allUsers.filter(
       (u) =>
         safe(u.nama).includes(keyword) ||
         safe(u.email).includes(keyword) ||
@@ -129,8 +140,14 @@
         safe(u.status).includes(keyword)
     );
 
-    renderUsers(filtered);
-    updateSummaryCards(filtered);
+    refreshTable();
+    updateSummaryCards(currentUsersView);
+  });
+  document.addEventListener("change", (e) => {
+    if (e.target.id !== "userPageSize") return;
+
+    perPage = parseInt(e.target.value, 10) || 10;
+    refreshTable();
   });
 
   /* =========================================================
@@ -171,6 +188,14 @@
       toast.classList.add("opacity-0", "translate-x-6");
       setTimeout(() => toast.remove(), 300);
     }, 3000);
+  }
+  function applyPerPage(users) {
+    return users.slice(0, perPage);
+  }
+
+  function refreshTable() {
+    // render hanya sejumlah perPage dari data view saat ini
+    renderUsers(applyPerPage(currentUsersView));
   }
 
   /* =========================================================

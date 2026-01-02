@@ -79,11 +79,24 @@
     return isNaN(num) ? 0 : num;
   }
 
+  // Hitung total belanja dari cart
+  function calculateCartTotal() {
+    return cart.reduce((total, item) => total + (item.price * item.qty), 0);
+  }
+
+  // Hitung uang kembalian
+  function calculateChange(cashAmount) {
+    const total = calculateCartTotal();
+    const cash = parseNumber(cashAmount);
+    const change = cash - total;
+    return change >= 0 ? change : 0;
+  }
+
   // Validasi jumlah uang tidak melebihi batas maksimal
   function validateCashAmount(value) {
     const num = parseNumber(value);
     if (num > MAX_CASH_AMOUNT) {
-      alert(`Jumlah uang tidak boleh melebihi Rp ${formatNumber(MAX_CASH_AMOUNT)}`);
+      toast(`Jumlah uang tidak boleh melebihi Rp ${formatNumber(MAX_CASH_AMOUNT)}`, "error", 4000);
       return false;
     }
     return true;
@@ -97,6 +110,9 @@
     if (rawValue) {
       const num = parseNumber(rawValue);
       inputElement.value = formatNumber(num);
+      
+      // Update uang kembalian
+      updateCashChange(inputElement.value);
     }
   }
 
@@ -128,10 +144,30 @@
     // Format dengan titik jika ada nilai
     if (value) {
       const num = parseNumber(value);
+      
+      // Update uang kembalian secara real-time
+      setTimeout(() => updateCashChange(value), 0);
+      
       return formatNumber(num);
+    } else {
+      // Reset uang kembalian jika input kosong
+      setTimeout(() => updateCashChange(""), 0);
+      return "";
+    }
+  }
+
+  // Update tampilan uang kembalian
+  function updateCashChange(cashAmount) {
+    const cashChangeInput = document.getElementById("cashChange");
+    if (!cashChangeInput) return;
+    
+    if (!cashAmount || cashAmount.trim() === "") {
+      cashChangeInput.value = "Rp 0";
+      return;
     }
     
-    return "";
+    const change = calculateChange(cashAmount);
+    cashChangeInput.value = "Rp " + formatNumber(change);
   }
 
   /* =========================
@@ -475,8 +511,17 @@
 
     totalEl.textContent = "Rp " + formatNumber(total);
     updateCartUI();
-    // Trigger event untuk update perhitungan kembalian
-    document.dispatchEvent(new Event("cartUpdated"));
+    
+    // Update uang kembalian saat cart berubah
+    updateCashChangeBasedOnInput();
+  }
+
+  // Update uang kembalian berdasarkan input uang yang ada
+  function updateCashChangeBasedOnInput() {
+    const cashInput = document.getElementById("cashAmount");
+    if (cashInput && cashInput.value) {
+      updateCashChange(cashInput.value);
+    }
   }
 
   function updateCartUI() {
@@ -570,12 +615,12 @@
       );
 
       if (!product) {
-        alert(`Produk tidak ditemukan: ${item.name}`);
+        toast(`Produk tidak ditemukan: ${item.name}`, "error", 4000);
         return false;
       }
 
       if (item.qty > Number(product.stok)) {
-        alert(`Stok ${item.name} tidak mencukupi`);
+        toast(`Stok ${item.name} tidak mencukupi`, "error", 4000);
         return false;
       }
     }
@@ -652,7 +697,7 @@
     try {
       const methodName = document.getElementById("paymentMethod")?.value;
       if (!methodName) {
-        alert("Pilih metode pembayaran terlebih dahulu");
+        toast("Pilih metode pembayaran terlebih dahulu", "warning", 3000);
         setConfirmLoading(false);
         return;
       }
@@ -661,15 +706,22 @@
       const methodId = convertPaymentMethodToId(methodName);
       
       // Status default untuk transaksi baru
-      const status = "selesai"; // Sesuaikan dengan enum/status di backend
+      const TRANSACTION_STATUS = {
+        LUNAS: "Lunas",
+        BELUM_LUNAS: "Belum Lunas",
+        MENUNGGU: "Menunggu Pembayaran",
+      };
+
+      const status = TRANSACTION_STATUS.LUNAS;
 
       const customerPayload = resolveCustomerPayload();
       
       // Siapkan payload sesuai format yang diharapkan backend
+      // TIDAK memasukkan uang_bayar atau kembalian karena hanya untuk tampilan
       const payload = {
         id_pelanggan: customerPayload ? Number(customerPayload) : null,
         id_metode: methodId,
-        status: status,
+        status: "Lunas",
         items: cart.map(i => ({
           id_produk: parseInt(i.id),
           jumlah: parseInt(i.qty),
@@ -707,12 +759,12 @@
         // Tampilkan error lebih detail
         let errorDetail = errorMsg;
         if (json.errors) {
-          errorDetail += "\n" + Object.entries(json.errors)
-            .map(([field, errors]) => `${field}: ${errors.join(', ')}`)
+          errorDetail = Object.entries(json.errors)
+            .map(([field, errors]) => `${errors.join(', ')}`)
             .join('\n');
         }
         
-        alert(`Error: ${errorDetail}`);
+        toast(errorDetail || errorMsg, "error", 5000);
         setConfirmLoading(false);
         return;
       }
@@ -732,17 +784,20 @@
       renderCart();
       closeConfirmModal();
 
+      // Tampilkan notifikasi sukses
+      toast("Transaksi berhasil! Data telah disimpan.", "success", 4000);
+
       // Navigasi ke invoice page
-      const invoiceBtn = document.querySelector('[data-page="invoice"]');
-      if (invoiceBtn) {
-        invoiceBtn.click();
-      } else {
-        alert("Transaksi berhasil! Data telah disimpan.");
-      }
+      setTimeout(() => {
+        const invoiceBtn = document.querySelector('[data-page="invoice"]');
+        if (invoiceBtn) {
+          invoiceBtn.click();
+        }
+      }, 1000);
 
     } catch (err) {
       console.error("Error saat submit order:", err);
-      alert("Terjadi kesalahan: " + (err.message || "Periksa koneksi internet Anda."));
+      toast("Terjadi kesalahan: " + (err.message || "Periksa koneksi internet Anda."), "error", 5000);
     } finally {
       setConfirmLoading(false);
     }
@@ -769,7 +824,7 @@
     
     const cashChangeInput = document.getElementById("cashChange");
     if (cashChangeInput) {
-      cashChangeInput.value = "";
+      cashChangeInput.value = "Rp 0";
       cashChangeInput.readOnly = true;
     }
     
@@ -940,6 +995,7 @@
     
     if (kembaliEl) {
       kembaliEl.readOnly = true;
+      kembaliEl.value = "Rp 0"; // Default value
     }
 
     // Tampilkan/sembunyikan bagian tunai (opsional, karena backend tidak butuh uang_bayar)
@@ -1110,7 +1166,10 @@
 
     if (action === "plus") {
       if (existing) {
-        if (existing.qty >= Number(product.stok ?? 0)) return;
+        if (existing.qty >= Number(product.stok ?? 0)) {
+          toast(`Stok ${product.nama_produk} tidak mencukupi`, "warning", 3000);
+          return;
+        }
         existing.qty++;
       } else {
         cart.push({
@@ -1144,7 +1203,10 @@
     const stok = Number(product.stok ?? 0);
     const existing = cart.find((i) => String(i.id) === String(id));
     const qtyInCart = existing ? existing.qty : 0;
-    if (qtyInCart >= stok) return;
+    if (qtyInCart >= stok) {
+      toast(`Stok ${product.nama_produk} tidak mencukupi`, "warning", 3000);
+      return;
+    }
 
     if (existing) existing.qty++;
     else
@@ -1175,29 +1237,28 @@
 
   function handleCheckout() {
     if (cart.length === 0) {
-      alert("Keranjang masih kosong");
+      toast("Keranjang masih kosong", "warning", 3000);
       return;
     }
 
     const paymentMethod = document.getElementById("paymentMethod")?.value;
     if (!paymentMethod) {
-      alert("Pilih metode pembayaran");
+      toast("Pilih metode pembayaran", "warning", 3000);
       return;
     }
 
-    // Validasi khusus untuk pembayaran tunai (opsional)
+    // Validasi khusus untuk pembayaran tunai (hanya untuk tampilan)
     if (paymentMethod === "Tunai") {
       const cashInput = document.getElementById("cashAmount");
       const rawValue = cashInput?.dataset.raw || cashInput?.value;
       
-      // Opsional: jika ingin validasi uang tunai cukup
+      // Validasi uang tunai cukup (hanya untuk user experience)
       if (cashInput && rawValue && rawValue.trim()) {
         const uangBayar = parseNumber(rawValue);
-        const totalText = document.getElementById("cartTotal")?.textContent || "Rp 0";
-        const total = parseNumber(totalText.replace("Rp ", ""));
+        const total = calculateCartTotal();
         
         if (uangBayar < total) {
-          alert("Uang bayar kurang dari total pembayaran");
+          toast("Uang bayar kurang dari total pembayaran", "error", 3000);
           cashInput.focus();
           return;
         }
@@ -1263,6 +1324,13 @@
       cashInput.type = 'text';
       cashInput.inputMode = 'numeric';
       cashInput.pattern = '[0-9]*';
+    }
+
+    // Inisialisasi uang kembalian ke 0
+    const cashChangeInput = document.getElementById("cashChange");
+    if (cashChangeInput) {
+      cashChangeInput.value = "Rp 0";
+      cashChangeInput.readOnly = true;
     }
 
     loadCustomers();

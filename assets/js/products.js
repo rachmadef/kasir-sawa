@@ -78,6 +78,31 @@
     console[type === "error" ? "error" : "log"](msg);
     alert(msg);
   }
+  /* =========================
+    IMAGE PREVIEW HELPERS
+  ========================= */
+  function resetImagePreview() {
+    const d = S.dom;
+    if (!d.imgPreview) return;
+
+    d.imgPreview.src = "";
+    d.imgPreview.classList.add("hidden");
+    d.btnRemoveImage?.classList.add("hidden");
+    d.imageLabel?.classList.add("hidden");
+
+    // reset input file
+    if (d.gambarEl) d.gambarEl.value = "";
+  }
+
+  function showImagePreview(src) {
+    const d = S.dom;
+    if (!d.imgPreview) return;
+
+    d.imgPreview.src = src;
+    d.imgPreview.classList.remove("hidden");
+    d.btnRemoveImage?.classList.remove("hidden");
+    d.imageLabel?.classList.remove("hidden");
+  }
 
   /* =========================
      DOM CACHE (DIPANGGIL SETIAP MASUK PAGE)
@@ -96,6 +121,9 @@
     dom.stokEl = document.getElementById("stok");
     dom.deskripsiEl = document.getElementById("deskripsi");
     dom.gambarEl = document.getElementById("gambar_produk");
+    dom.imgPreview = document.getElementById("imgPreview");
+    dom.btnRemoveImage = document.getElementById("btnRemoveImage");
+    dom.imageLabel = document.getElementById("imageLabel");
 
     dom.tbody = document.getElementById("productTbody");
     dom.noProductFound = document.getElementById("noProductFound");
@@ -147,6 +175,7 @@
     d.productForm?.reset();
     if (d.productIdEl) d.productIdEl.value = "";
     if (d.productModalTitle) d.productModalTitle.textContent = "Tambah Produk";
+    resetImagePreview();
   }
 
   /* =========================
@@ -413,7 +442,14 @@
     d.hargaEl.value = p.harga ?? 0;
     d.stokEl.value = p.stok ?? 0;
     d.deskripsiEl.value = p.deskripsi || "";
-
+    // preview gambar existing (edit)
+    if (p.gambar_produk) {
+      showImagePreview(
+        `http://127.0.0.1:8000/storage/${p.gambar_produk}`
+      );
+    } else {
+      resetImagePreview();
+    }
     openProductModal();
   }
 
@@ -512,6 +548,34 @@
         if (e.target === d.deleteModal) closeDeleteModalProduct();
       });
     }
+    // preview gambar saat pilih file
+    if (d.gambarEl && !d.gambarEl.__boundPreview) {
+      d.gambarEl.__boundPreview = true;
+      d.gambarEl.addEventListener("change", () => {
+        const file = d.gambarEl.files?.[0];
+        if (!file) {
+          resetImagePreview();
+          return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+          ensureToast("File harus berupa gambar", "error");
+          resetImagePreview();
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => showImagePreview(e.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+    if (d.btnRemoveImage && !d.btnRemoveImage.__bound) {
+      d.btnRemoveImage.__bound = true;
+      d.btnRemoveImage.addEventListener("click", () => {
+        resetImagePreview();
+      });
+    }
+
     // submit form produk
     if (d.productForm && !d.productForm.__boundSubmit) {
       d.productForm.__boundSubmit = true;

@@ -1,6 +1,5 @@
 const API_LOGIN = "http://127.0.0.1:8000/api/kasir/login";
 
-
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 

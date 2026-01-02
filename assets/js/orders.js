@@ -38,10 +38,28 @@
       });
       
       // Tambahkan filter hanya jika bukan default
-      if (filterState.keyword) params.append('keyword', filterState.keyword);
-      if (filterState.status !== 'all') params.append('status', filterState.status);
-      if (filterState.method !== 'all') params.append('metode', filterState.method);
-      if (filterState.date) params.append('tanggal', filterState.date);
+      // SEARCH
+      if (filterState.keyword) {
+        params.append('search', filterState.keyword);
+      }
+      orderSearch.addEventListener('keyup', e => {
+        if (e.key === 'Enter') applyAllFilters();
+      });
+
+      // STATUS
+      if (filterState.status !== 'all') {
+        params.append('status', filterState.status);
+      }
+
+      // METODE BAYAR
+      if (filterState.method !== 'all' && !isNaN(filterState.method)) {
+        params.append('id_metode', filterState.method);
+      }
+
+      // TANGGAL (single date)
+      if (filterState.date) {
+        params.append('start_date', filterState.date);
+      }
       if (filterState.sort !== 'date-desc') params.append('sort', filterState.sort);
       
       const url = `http://127.0.0.1:8000/api/kasir/transaksi?${params.toString()}`;
@@ -213,7 +231,7 @@
         ${statusBadge}
       </td>
       <td class="px-6 py-4 whitespace-nowrap text-sm">
-        <button class="text-emerald-600 hover:text-white cursor-pointer border border-emerald-600 hover:bg-emerald-600  rounded-lg hover:text-indigo-900 hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors duration-150"
+        <button class="text-emerald-600 hover:text-white cursor-pointer border border-emerald-600 hover:bg-emerald-600  rounded-lg hover:text-indigo-900 px-3 py-1.5 rounded-lg transition-colors duration-150"
                 data-action="detail"
                 data-id="${order.id_transaksi || order.id}">
           <span class="flex items-center gap-1.5">
@@ -568,8 +586,6 @@
           </div>
 
           <!-- Grid Layout untuk Detail Lengkap -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Informasi Pelanggan -->
             <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
               <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
                 <div class="p-2 bg-blue-100 rounded-lg">
@@ -629,7 +645,6 @@
                 </div>
               </div>
             </div>
-
             <!-- Informasi Produk -->
             <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
               <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
@@ -658,20 +673,7 @@
                   </table>
                 </div>
               </div>
-              
-              <!-- Ringkasan Pembayaran -->
-              <div class="mt-6 pt-5">
-                <div class="flex justify-end">
-                  <div class="w-full md:w-64 space-y-3">
-                    <div class="flex justify-between items-center pt-3">
-                      <span class="text-base font-semibold text-gray-900">Total Pembayaran</span>
-                      <span class="text-lg font-bold text-indigo-600">Rp ${Number(data.total_harga || 0).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
       `;
     } catch (err) {
@@ -726,6 +728,15 @@
     } catch (err) {
       console.error('Error clearing filters:', err);
     }
+  }
+  function handleRealtimeSearch() {
+    const orderSearch = document.getElementById('orderSearch');
+    if (!orderSearch) return;
+
+    filterState.keyword = orderSearch.value.trim();
+
+    currentPage = 1; // WAJIB reset halaman
+    loadOrders(1);
   }
 
   /* ================================

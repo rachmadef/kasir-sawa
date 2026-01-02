@@ -1,4 +1,4 @@
-const AUTH_EXPIRE_MS = 1000 * 60 * 60 * 8; // 8 jam (frontend only)
+const AUTH_EXPIRE_MS = 1000 * 60 * 60 * 8; // 8 jam
 
 const auth = {
     setSession(token, user) {
@@ -32,5 +32,17 @@ const auth = {
 
     getToken() {
         return localStorage.getItem("token");
+    },
+
+    // 🔥 INI YANG HILANG
+    getAuthHeader() {
+        const token = localStorage.getItem("token");
+
+        if (!token) return {};
+
+        return {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
+        };
     }
 };
