@@ -1,0 +1,191 @@
+<section class="page-content space-y-6">
+
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
+    <button id="btnAddUser"
+      class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">+
+      Tambah Karyawan</button>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+    <div class="rounded-xl bg-white p-5 shadow-sm border-l-4 border-indigo-500">
+      <p class="text-sm text-gray-500">Total Karyawan</p>
+      <h3 id="totalUser" class="mt-1 text-2xl font-semibold text-gray-900">0</h3>
+    </div>
+
+    <div class="rounded-xl bg-white p-5 shadow-sm border-l-4 border-emerald-500">
+      <p class="text-sm text-gray-500">Karyawan Aktif</p>
+      <h3 id="totalActive" class="mt-1 text-2xl font-semibold text-emerald-600">0</h3>
+    </div>
+
+    <div class="rounded-xl bg-white p-5 shadow-sm border-l-4 border-red-500">
+      <p class="text-sm text-gray-500">Karyawan Tidak Aktif</p>
+      <h3 id="totalInactive" class="mt-1 text-2xl font-semibold text-red-500">0</h3>
+    </div>
+
+  </div>
+
+  <div class="rounded-2xl bg-white shadow ring-1 ring-gray-200">
+
+    <div class="flex flex-col gap-4 border-b border-gray-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex items-center gap-2 text-sm text-gray-600">
+        <span>Show</span>
+        <select
+          class="rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+          <option>10</option>
+          <option>25</option>
+          <option>50</option>
+        </select>
+        <span>entries</span>
+      </div>
+      <input id="searchUser" type="text" placeholder="Search karyawan..."
+        class="w-full sm:w-64 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-gray-700">
+        <thead class="sticky top-0 z-10 bg-blue-600 text-white">
+          <tr>
+            <th class="px-6 py-3 text-center font-semibold uppercase tracking-wide">Nama</th>
+            <th class="px-6 py-3 text-center font-semibold uppercase tracking-wide">Email</th>
+            <th class="px-6 py-3 text-center font-semibold uppercase tracking-wide">Role</th>
+            <th class="px-6 py-3 text-center font-semibold uppercase tracking-wide">Status</th>
+            <th class="px-6 py-3 text-center font-semibold uppercase tracking-wide">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="userTable" class="divide-y divide-gray-100 [&>tr:hover]:bg-blue-50 transition-colors"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+</section>
+<div id="userModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm">
+  <div class="flex min-h-screen items-center justify-center p-4">
+
+    <div class="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden flex flex-col">
+
+      <!-- HEADER -->
+      <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-indigo-700 to-blue-600 shrink-0">
+        <div class="flex items-center gap-3 text-white">
+          <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+              <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+              <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
+            </svg>
+          </div>
+          <h3 id="modalTitle" class="text-lg font-semibold">Tambah Karyawan</h3>
+        </div>
+
+        <button id="closeUserModal" class="rounded-lg p-2 text-white/80 hover:bg-white/20 transition cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- BODY -->
+      <form id="userForm" class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+
+        <input type="hidden" id="userId">
+
+        <!-- GRID FORM -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+          <!-- Nama -->
+          <div>
+            <label class="text-sm font-medium text-gray-700">Nama</label>
+            <input id="nama" required
+              class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="text-sm font-medium text-gray-700">Email</label>
+            <input id="email" type="email" required
+              class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label class="text-sm font-medium text-gray-700">Password</label>
+            <input id="password" type="password" placeholder="Kosongkan saat edit"
+              class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+          </div>
+
+          <!-- No Telp -->
+          <div>
+            <label class="text-sm font-medium text-gray-700">No. Telepon</label>
+            <input id="no_telp"
+              class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+          </div>
+
+        </div>
+
+        <!-- Status -->
+        <div>
+          <label class="text-sm font-medium text-gray-700">Status</label>
+          <select id="status"
+            class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+            <option value="Aktif">Aktif</option>
+            <option value="Cuti">Cuti</option>
+          </select>
+        </div>
+
+        <p class="text-xs text-gray-500">
+          Role otomatis sebagai <span class="font-medium text-gray-700">Karyawan</span>
+        </p>
+      </form>
+
+      <!-- FOOTER -->
+      <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200 shrink-0">
+        <button type="submit" form="userForm"
+          class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 transition cursor-pointer">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Simpan
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div id="detailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="w-full max-w-md mx-4 rounded-2xl bg-white shadow-xl overflow-hidden animate-scaleIn">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-sky-600 to-indigo-700">
+      <div class="flex items-center gap-2 text-white">
+        <!-- Heroicon: User -->
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0" />
+        </svg>
+        <h3 class="text-lg font-semibold">Detail Karyawan</h3>
+      </div>
+      <button id="closeDetailModal" class="text-white/90 hover:bg-white/20 rounded-lg cursor-pointer p-2">
+        ✕
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div id="detailContent" class="px-6 py-5 space-y-4 text-sm text-gray-700"></div>
+
+  </div>
+</div>
+<div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+  <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl animate-scaleIn overflow-hidden">
+    <div class="border-b border-red-100 bg-red-50 px-6 py-4">
+      <h3 class="text-lg font-semibold text-red-600">Konfirmasi Penghapusan</h3>
+      <p class="mt-1 text-sm text-red-500">Data karyawan yang dihapus akan hilang permanen.</p>
+    </div>
+    <div class="flex justify-center gap-3 bg-gray-50 px-6 py-4">
+      <button id="cancelDelete"
+        class="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer">Batal</button>
+      <button id="confirmDelete"
+        class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 cursor-pointer">Ya,
+        Hapus</button>
+    </div>
+  </div>
+</div>

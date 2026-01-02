@@ -1,0 +1,13 @@
+1️⃣ Isi tabel produk dari detail_transaksi
+Karena produk masih kosong, kita buat datanya dari kolom produk di detail_transaksi.
+
+INSERT INTO produk (nama_produk)
+SELECT DISTINCT produk
+FROM detail_transaksi
+WHERE produk IS NOT NULL;
+
+2️⃣ Update id_produk di detail_transaksi (tanpa ubah struktur)
+UPDATE detail_transaksi dt
+JOIN produk p ON p.nama_produk = dt.produk
+SET dt.id_produk = p.id_produk
+WHERE dt.id_produk IS NULL;

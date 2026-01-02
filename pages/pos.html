@@ -1,0 +1,200 @@
+<div class="h-full grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-start lg:items-stretch">
+
+  <!-- PRODUCTS SECTION -->
+  <div class="lg:col-span-2 flex flex-col gap-4 lg:gap-6">
+
+    <!-- Search Bar -->
+    <div class="relative">
+      <input id="posSearch" type="text" placeholder="Cari produk..."
+        class="w-full pl-10 pr-4 py-3 lg:py-2.5 bg-white rounded-xl border border-gray-300 text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 lg:w-6 lg:h-6">
+          <path fill-rule="evenodd"
+            d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+            clip-rule="evenodd" />
+        </svg>
+      </span>
+    </div>
+    <div class="flex gap-2">
+      <div id="posCategoryChips" class="flex gap-1 overflow-x-auto pb-2 lg:pb-1 px-1 -mx-1 lg:mx-0"></div>
+      <!-- Product Grid -->
+      <div>
+        <!-- Sort Harga -->
+        <select id="sortPrice" class="rounded-lg curs px-3 py-2 text-sm bg-white">
+          <option value="">Urutkan Harga</option>
+          <option value="asc">Termurah</option>
+          <option value="desc">Termahal</option>
+        </select>
+      </div>
+    </div>
+    <!-- Category Chips -->
+
+    <div id="productList" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4"></div>
+    <div id="productPagination" class="flex justify-center gap-2 py-4"></div>
+  </div>
+  <!-- CART SECTION -->
+  <div id="posCart"
+    class="rounded-2xl lg:rounded-3xl flex flex-col transition-all duration-300 overflow-hidden border border-gray-100">
+
+    <!-- Cart Header -->
+    <div
+      class="cart-header flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-700 px-4 py-4 lg:px-6 lg:py-4">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+        class="w-6 h-6 lg:w-7 lg:h-7 text-white">
+        <path
+          d="M2.25 2.25a.75.75 0 0 0 0 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 0 0-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 0 0 0-1.5H5.378A2.25 2.25 0 0 1 7.5 15h11.218a.75.75 0 0 0 .674-.421 60.358 60.358 0 0 0 2.96-7.228.75.75 0 0 0-.525-.965A60.864 60.864 0 0 0 5.68 4.509l-.232-.867A1.875 1.875 0 0 0 3.636 2.25H2.25Z" />
+      </svg>
+      <div class="flex-1">
+        <h3 class="font-semibold text-white text-base lg:text-lg">Keranjang Belanja</h3>
+        <p class="text-xs text-blue-100 opacity-90 mt-0.5">Ringkasan pesanan Anda</p>
+      </div>
+      <span id="cartBadge"
+        class="hidden text-xs bg-white text-indigo-600 px-2.5 py-1 rounded-full font-semibold shadow-sm">0</span>
+    </div>
+
+    <!-- Cart Items -->
+    <div id="cartItems" class="bg-white flex-1 overflow-y-auto">
+      <p class="text-sm text-gray-400 text-center p-8">Belum ada item dalam keranjang</p>
+    </div>
+
+    <!-- Customer Form -->
+    <div id="customerForm" class="px-4 lg:px-6 py-4 space-y-3">
+      <div>
+        <label class="text-xs lg:text-sm text-gray-600 font-medium flex items-center gap-1">
+          <span>Nama Pelanggan</span>
+          <span class="text-red-500">*</span>
+        </label>
+        <input id="customerName" type="text" placeholder="Masukkan nama pelanggan"
+          class="w-full mt-1.5 rounded-lg border px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <div
+          id="customerSuggest"
+          class="absolute z-50 bg-white border rounded-md shadow mt-1 w-full hidden max-h-60 overflow-auto"
+        ></div>
+      </div>
+
+      <div id="customerDetail" class="space-y-3">
+        <input id="customerAddress" type="text" placeholder="Alamat lengkap"
+          class="w-full rounded-lg border px-3 py-2.5 text-sm">
+
+        <input id="customerPhone" type="tel" placeholder="No. Telepon (WhatsApp)"
+          class="w-full rounded-lg border px-3 py-2.5 text-sm">
+
+        <select id="customerGender" class="w-full rounded-lg border px-3 py-2.5 text-sm bg-white">
+          <option value="">Jenis Kelamin</option>
+          <option value="L">Laki-laki</option>
+          <option value="P">Perempuan</option>
+        </select>
+      </div>
+
+      <div id="cashSection" class="space-y-3 hidden">
+        <input id="cashAmount" type="number" placeholder="Uang diterima (Rp)"
+          class="w-full rounded-lg border px-3 py-2.5 text-sm font-medium text-gray-900">
+
+        <input id="cashChange" type="text" readonly placeholder="Kembalian"
+          class="w-full rounded-lg border px-3 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 border-emerald-100">
+      </div>
+    </div>
+
+    <!-- Cart Footer -->
+    <div class="cart-footer px-4 lg:px-6 py-4 lg:py-5 space-y-3 lg:space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <span class="text-sm lg:text-base text-gray-600 font-medium">Total</span>
+          <p class="text-xs text-gray-500 mt-0.5">Termasuk pajak</p>
+        </div>
+        <div class="text-right">
+          <span id="cartTotal" class="font-bold text-lg lg:text-xl text-indigo-600">Rp 0</span>
+          <p class="text-xs text-gray-500 mt-0.5">${cart.length} item</p>
+        </div>
+      </div>
+
+      <select id="paymentMethod"
+        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white">
+        <option value="">Pilih Metode Pembayaran</option>
+        <option value="Tunai">💵 Tunai</option>
+        <option value="E-Wallet">📱 E-Wallet</option>
+        <option value="VA">🏦 Virtual Account</option>
+        <option value="Transfer Bank">💳 Transfer Bank</option>
+      </select>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btnCancelOrder"
+          class="col-span-1 rounded-xl border border-red-500 text-red-600 hover:bg-red-50 py-3 text-sm lg:text-base font-medium transition-all duration-200 active:scale-95">
+          Batalkan
+        </button>
+        <button id="btnCheckout" disabled
+          class="col-span-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 text-sm lg:text-base font-semibold transition-all duration-200 active:scale-95">
+          Pesan Sekarang
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="mobileCartBar" class="fixed bottom-0 left-0 right-0 z-30 sm:hidden hidden
+         bg-emerald-600 text-white
+         px-4 py-3 flex items-center justify-between
+         shadow-[0_-4px_20px_rgba(0,0,0,0.15)] rounded-t-xl">
+
+  <div class="flex items-center gap-2 text-sm font-medium">
+    🛒 <span id="mobileCartCount">0</span> item
+  </div>
+
+  <div class="flex items-center gap-2">
+    <span id="mobileCartBarTotal" class="font-bold text-base">
+      Rp 0
+    </span>
+  </div>
+</div>
+<!-- MODAL KONFIRMASI TRANSAKSI -->
+<div id="confirmModal"
+  class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/50">
+
+  <div class="bg-white rounded-2xl w-full max-w-lg mx-4 shadow-xl">
+    <!-- Header -->
+    <div class="px-5 py-4 border-b">
+      <h3 class="text-lg font-semibold">Konfirmasi Pesanan</h3>
+      <p class="text-sm text-gray-500">Periksa kembali sebelum diproses</p>
+    </div>
+
+    <!-- Body -->
+    <div class="px-5 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+      <!-- Pelanggan -->
+      <div>
+        <p class="text-xs text-gray-500">Pelanggan</p>
+        <p id="confirmCustomer" class="font-medium text-sm">-</p>
+      </div>
+
+      <!-- Produk -->
+      <div>
+        <p class="text-xs text-gray-500 mb-2">Daftar Barang</p>
+        <div id="confirmItems" class="space-y-2 text-sm"></div>
+      </div>
+
+      <!-- Ringkasan -->
+      <div class="border-t pt-3 text-sm space-y-1">
+        <div class="flex justify-between">
+          <span>Total</span>
+          <span id="confirmTotal" class="font-semibold text-indigo-600">Rp 0</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Metode Bayar</span>
+          <span id="confirmMethod" class="font-medium">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-5 py-4 border-t flex gap-3">
+      <button id="btnCancelConfirm"
+        class="flex-1 rounded-xl border py-2 text-sm">
+        Batal
+      </button>
+      <button id="btnConfirmOrder"
+        class="flex-1 rounded-xl bg-emerald-600 text-white py-2 text-sm font-semibold">
+        Konfirmasi
+      </button>
+    </div>
+  </div>
+</div>

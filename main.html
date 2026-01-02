@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kasir Sawa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="assets/images/icon-white1.png">
+  <link rel="stylesheet" href="assets/css/output.css">
+</head>
+
+<body class="bg-gray-100">
+
+  <!-- Toast -->
+  <div id="toastContainer" class="fixed right-5 top-5 z-[9999] space-y-2"></div>
+
+  <!-- Overlay -->
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden"></div>
+
+  <div class="flex h-screen overflow-hidden">
+
+    <aside id="sidebar"
+      class="fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
+             w-64 bg-white h-full flex flex-col transition-transform">
+    </aside>
+
+    <div class="flex-1 flex flex-col w-full">
+      <div id="nav"></div>
+      <main id="content" class="flex-1 p-4 sm:p-6 overflow-y-auto bg-gray-100"></main>
+      <div id="footer"></div>
+
+    </div>
+  </div>
+
+  <!-- Core JS -->
+  <script src="./assets/js/auth.js"></script>
+  <script src="./assets/js/app.js"></script>
+  <script src="./assets/js/toast.js"></script>
+  <script src="./assets/js/pos.js"></script>
+  <script src="./assets/js/orders.js"></script>
+
+</body>
+</html>

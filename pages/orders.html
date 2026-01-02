@@ -1,0 +1,244 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
+    <button id="btnAddOrder"
+      class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Tambah Pesanan
+    </button>
+  </div>
+
+  <!-- Tools Section -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+      <!-- Search -->
+      <div class="relative flex-1 max-w-md">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input id="orderSearch" type="text" placeholder="Cari invoice, pelanggan, atau metode pembayaran..."
+          class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors">
+      </div>
+
+      <!-- Filter Group -->
+      <div class="flex flex-wrap gap-3">
+        <!-- Date Filter -->
+        <div class="relative">
+          <input type="date" id="orderDateFilter"
+            class="appearance-none bg-white pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm min-w-[160px] cursor-pointer">
+          <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="relative">
+          <select id="orderStatusFilter"
+            class="appearance-none bg-white pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm min-w-[140px] cursor-pointer">
+            <option value="all">Semua Status</option>
+            <option value="lunas">Lunas</option>
+            <option value="belum lunas">Belum Lunas</option>
+          </select>
+          <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Method Filter -->
+        <div class="relative">
+          <select id="orderMethodFilter"
+            class="appearance-none bg-white pl-3 pr-8 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm min-w-[160px] cursor-pointer">
+            <option value="all">Semua Metode</option>
+            <option value="tunai">Tunai</option>
+            <option value="e-wallet">E-Wallet</option>
+            <option value="va">Virtual Account</option>
+            <option value="transfer bank">Transfer Bank</option>
+            <option value="cod">COD</option>
+          </select>
+          <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Clear Filters Button -->
+        <button id="clearFilters"
+          class="px-4 py-2.5 text-sm text-white cursor-pointer bg-red-500 rounded-lg hover:bg-red-600 hover:border-gray-400 transition-colors">
+          Reset Filter
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Table Container -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <!-- Table Header Stats -->
+    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <label for="perPageSelect" class="text-sm focus:ring-indigo-500 focus:border-indigo-500">
+            Tampilkan
+          </label>
+
+          <select id="perPageSelect"
+            class="border border-gray-200 cursor-pointer rounded-lg px-2 py-1 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+          </select>
+
+          <span class="text-sm text-gray-600">data</span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <span id="orderCount" class="text-xs text-gray-500">Memuat...</span>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-500">Urutkan:</span>
+            <select id="orderSort" class="text-sm cursor-pointer border-none bg-white px-4 rounded-lg border border-gray-200 py-2 focus:ring-0">
+              <option value="date-desc">Terbaru</option>
+              <option value="date-asc">Terlama</option>
+              <option value="total-desc">Total Tertinggi</option>
+              <option value="total-asc">Total Terendah</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-blue-600">
+          <tr>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">
+              <div class="flex items-center gap-1">
+                Invoice
+                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </div>
+            </th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">
+              Tanggal
+            </th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">
+              Pelanggan
+            </th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">
+              Metode
+            </th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">
+              Total
+            </th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">
+              Status
+            </th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider whitespace-nowrap">
+              Aksi
+            </th>
+          </tr>
+        </thead>
+        <tbody id="orderTable" class="bg-white divide-y divide-gray-100"></tbody>
+      </table>
+      <div id="pagination" class="flex justify-end items-center gap-2 p-6"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="noOrderFound" class="hidden px-6 py-12 text-center">
+      <div class="max-w-sm mx-auto">
+        <svg class="h-12 w-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <h3 class="mt-4 text-sm font-medium text-gray-900">Tidak ada pesanan</h3>
+        <p class="mt-1 text-sm text-gray-500">Tidak ada data pesanan yang ditemukan</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="orderLoading" class="hidden px-6 py-12 text-center">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <p class="mt-2 text-sm text-gray-500">Memuat data...</p>
+    </div>
+  </div>
+</div>
+<!-- MODAL DETAIL TRANSAKSI -->
+<div id="orderDetailModal"
+  class="fixed inset-0 z-50 hidden flex items-start justify-center bg-black/60 backdrop-blur-sm overflow-y-auto p-4">
+
+  <div class="bg-white w-full max-w-3xl h-[calc(100vh-2rem)] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slideIn relative mx-auto my-8 flex flex-col">
+    <!-- Header -->
+    <div class="flex flex-shrink-0 items-start justify-between px-6 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 flex-shrink-0">
+      <div>
+        <h3 class="text-xl font-semibold text-white tracking-tight">
+          Detail Transaksi
+        </h3>
+        <p class="text-sm text-blue-100 mt-1">
+          Informasi lengkap mengenai transaksi pelanggan
+        </p>
+      </div>
+
+      <button id="closeOrderModal"
+        class="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-full transition-all duration-200">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div
+      id="orderDetailContent"
+      class="p-6 flex-grow overflow-y-auto space-y-6 flex-grow scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+      <!-- Diisi via JS -->
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="px-6 py-4 bg-gray-50 flex flex-shrink-0 justify-end gap-3 flex-shrink-0">
+      <button id="closeOrderModalBtn"
+        class="px-5 py-2.5 text-sm text-white font-medium text-gray-700 bg-red-600 hover:bg-red-700 rounded-lg cursor-pointer transition-all duration-200">
+        Tutup
+      </button>
+    </div>
+
+  </div>
+</div>
+<!-- Add Custom Animation -->
+<style>
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.2s ease-out;
+  }
+</style>

@@ -1,0 +1,55 @@
+<header class="h-16 bg-white flex items-center justify-between px-6 relative">
+
+    <!-- LEFT -->
+    <div class="flex items-center gap-4">
+        <!-- Toggle Sidebar -->
+        <button id="toggleSidebar" class="text-gray-600 hover:text-indigo-600">
+            <!-- Bars-3 -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+            </svg>
+        </button>
+
+        <h1 id="page-title" class="text-lg font-semibold text-gray-800"></h1>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="flex items-center gap-4">
+        <!-- USER DROPDOWN -->
+        <div class="relative" id="userDropdown">
+
+            <!-- Trigger -->
+            <button id="userDropdownBtn"
+                class="flex items-center gap-2 p-2 cursor-pointer rounded-full hover:bg-gray-100">
+                <div class="flex flex-col items-end justify-center mr-2">
+                    <p id="userName" class="text-sm font-semibold text-gray-800">User</p>
+                    <p id="userRole" class="text-xs text-gray-500">Role</p>
+
+                </div>
+                <div class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold"
+                    id="userAvatar">
+                </div>
+            </button>
+
+            <!-- Dropdown -->
+            <div id="userDropdownMenu" class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg hidden z-50">
+                <!-- Logout -->
+                <div class="">
+                    <button onclick="auth.logout()"
+                        class="flex items-center gap-2 w-full px-4 py-3 text-red-600 hover:bg-red-50 font-medium cursor-pointer rounded-xl">
+                        <!-- Arrow Left On Rectangle -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M18 12H9m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</header>
