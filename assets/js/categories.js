@@ -1,5 +1,5 @@
 window.CATEGORY_API =
-  window.CATEGORY_API || "http://127.0.0.1:8000/api/kasir/kategori";
+  window.CATEGORY_API || "https://annajiyah2bu.com/api-sawa/api/kasir/kategori";
 
 /* ===============================
    DOM (DINAMIS)

@@ -1,4 +1,4 @@
-const API_LOGIN = "http://127.0.0.1:8000/api/kasir/login";
+const API_LOGIN = "https://annajiyah2bu.com/api-sawa/api/kasir/login";
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();

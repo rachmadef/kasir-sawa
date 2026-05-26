@@ -8,9 +8,9 @@
      CONFIG
   ========================= */
   window.PRODUCT_API =
-    window.PRODUCT_API || "http://127.0.0.1:8000/api/kasir/produk";
+    window.PRODUCT_API || "https://annajiyah2bu.com/api-sawa/api/kasir/produk";
   window.CATEGORY_API =
-    window.CATEGORY_API || "http://127.0.0.1:8000/api/kasir/kategori";
+    window.CATEGORY_API || "https://annajiyah2bu.com/api-sawa/api/kasir/kategori";
 
   /* =========================
      STATE (NAMESPACE)
@@ -334,7 +334,7 @@
 
     S.filteredProducts.slice(start, end).forEach((p) => {
       const img = p.gambar_produk
-        ? `http://127.0.0.1:8000/storage/${p.gambar_produk}`
+        ? `https://annajiyah2bu.com/api-sawa/storage/${p.gambar_produk}`
         : "./assets/images/no-image.png";
       tbody.insertAdjacentHTML(
         "beforeend",
@@ -445,7 +445,7 @@
     // preview gambar existing (edit)
     if (p.gambar_produk) {
       showImagePreview(
-        `http://127.0.0.1:8000/storage/${p.gambar_produk}`
+        `https://annajiyah2bu.com/api-sawa/storage/${p.gambar_produk}`
       );
     } else {
       resetImagePreview();

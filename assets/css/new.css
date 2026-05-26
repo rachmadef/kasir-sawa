@@ -423,6 +423,9 @@ body.sidebar-collapsed #sidebar:hover footer .footer-full {
   body {
     padding-bottom: 4.5rem;
   }
+  #posCart {
+    margin-bottom: 0 !important;
+  }
 }
 
 /* ===============================

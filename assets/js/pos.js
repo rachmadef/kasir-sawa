@@ -6,10 +6,10 @@
   /* =========================
      KONFIGURASI API
   ========================= */
-  const CUSTOMER_API = "http://127.0.0.1:8000/api/kasir/pelanggan";
-  const PRODUCT_API = "http://127.0.0.1:8000/api/kasir/produk";
-  const TRANSACTION_API = "http://127.0.0.1:8000/api/kasir/transaksi";
-  const STORAGE_URL = "http://127.0.0.1:8000/storage/";
+  const CUSTOMER_API = "https://annajiyah2bu.com/api-sawa/api/kasir/pelanggan";
+  const PRODUCT_API = "https://annajiyah2bu.com/api-sawa/api/kasir/produk";
+  const TRANSACTION_API = "https://annajiyah2bu.com/api-sawa/api/kasir/transaksi";
+  const STORAGE_URL = "https://annajiyah2bu.com/api-sawa/storage/";
 
   /* =========================
      STATE GLOBAL
@@ -26,6 +26,8 @@
   let totalPages = 1;
   let customers = [];
   let selectedCustomer = null;
+  let isMobileCartOpen = false;
+  let currentReceipt = null;
   const MAX_CASH_AMOUNT = 100000000000000; // 100 triliun
 
   /* =========================
@@ -363,7 +365,7 @@
 
     data.forEach((p) => {
       const img = p.gambar_produk
-        ? STORAGE_URL + p.gambar_produk
+        ? (p.gambar_produk.startsWith('http') ? p.gambar_produk : STORAGE_URL + p.gambar_produk)
         : "./assets/images/no-image.png";
       const stok = Number(p?.stok ?? 0);
       const isOut = stok <= 0;
@@ -534,9 +536,37 @@
 
   function updateCartLayout() {
     const cartBox = document.getElementById("posCart");
+    const overlay = document.getElementById("cartOverlay");
+    const mobileBar = document.getElementById("mobileCartBar");
     if (!cartBox) return;
-    if (cart.length === 0) cartBox.classList.remove("is-expanded");
-    else cartBox.classList.add("is-expanded");
+
+    const isMobile = window.innerWidth < 768;
+
+    if (!isMobile) {
+      cartBox.classList.remove("is-expanded");
+      if (overlay) overlay.classList.add("hidden");
+      if (mobileBar) mobileBar.classList.add("hidden");
+      return;
+    }
+
+    // Di mobile, atur berdasarkan status laci keranjang
+    if (isMobileCartOpen && cart.length > 0) {
+      cartBox.classList.add("is-expanded");
+      if (overlay) overlay.classList.remove("hidden");
+      if (mobileBar) mobileBar.classList.add("hidden"); // Sembunyikan bar hijau jika laci dibuka
+    } else {
+      cartBox.classList.remove("is-expanded");
+      if (overlay) overlay.classList.add("hidden");
+      
+      // Tampilkan bar hijau jika ada item di keranjang
+      if (mobileBar) {
+        if (cart.length > 0) {
+          mobileBar.classList.remove("hidden");
+        } else {
+          mobileBar.classList.add("hidden");
+        }
+      }
+    }
   }
 
   function updateCartBadge() {
@@ -692,49 +722,61 @@
   async function submitOrder() {
     if (!validateStockBeforeSubmit()) return;
 
+    const name = document.getElementById("customerName")?.value?.trim();
+    if (!name) {
+      toast("Nama pelanggan wajib diisi", "warning", 3000);
+      document.getElementById("customerName")?.focus();
+      return;
+    }
+
     setConfirmLoading(true);
 
     try {
-      const methodName = document.getElementById("paymentMethod")?.value;
-      if (!methodName) {
-        toast("Pilih metode pembayaran terlebih dahulu", "warning", 3000);
-        setConfirmLoading(false);
-        return;
+      let customerId = selectedCustomer?.id_pelanggan;
+
+      // Daftarkan pelanggan otomatis jika belum terdaftar
+      if (!customerId) {
+        const existing = customers.find(c => String(c.nama_pelanggan || "").toLowerCase() === name.toLowerCase());
+        if (existing) {
+          customerId = existing.id_pelanggan;
+        } else {
+          const address = document.getElementById("customerAddress")?.value?.trim() || "";
+          const phone = document.getElementById("customerPhone")?.value?.trim() || "";
+          const gender = document.getElementById("customerGender")?.value || "L";
+
+          const custRes = await fetch(CUSTOMER_API, {
+            method: "POST",
+            headers: authHeader(),
+            body: JSON.stringify({
+              nama_pelanggan: name,
+              alamat: address,
+              no_telp: phone,
+              jenis_kelamin: gender
+            })
+          });
+
+          if (!custRes.ok) {
+            const custJson = await custRes.json();
+            throw new Error(custJson.message || "Gagal mendaftarkan pelanggan baru");
+          }
+
+          const custJson = await custRes.json();
+          customerId = custJson.data.id_pelanggan;
+          
+          loadCustomers(); // Refresh daftar pelanggan di background
+        }
       }
 
-      // Konversi metode pembayaran ke ID
-      const methodId = convertPaymentMethodToId(methodName);
-      
-      // Status default untuk transaksi baru
-      const TRANSACTION_STATUS = {
-        LUNAS: "Lunas",
-        BELUM_LUNAS: "Belum Lunas",
-        MENUNGGU: "Menunggu Pembayaran",
-      };
-
-      const status = TRANSACTION_STATUS.LUNAS;
-
-      const customerPayload = resolveCustomerPayload();
-      
-      // Siapkan payload sesuai format yang diharapkan backend
-      // TIDAK memasukkan uang_bayar atau kembalian karena hanya untuk tampilan
+      // Siapkan payload transaksi, set id_metode = 1 (QRIS)
       const payload = {
-        id_pelanggan: customerPayload ? Number(customerPayload) : null,
-        id_metode: methodId,
+        id_pelanggan: Number(customerId),
+        id_metode: 1, // 1 = QRIS
         status: "Lunas",
         items: cart.map(i => ({
           id_produk: parseInt(i.id),
-          jumlah: parseInt(i.qty),
-          // harga_satuan: parseInt(i.price), // Backend akan ambil harga dari produk
-        })),
+          jumlah: parseInt(i.qty)
+        }))
       };
-
-      // Hapus key yang null
-      if (payload.id_pelanggan === null) {
-        delete payload.id_pelanggan;
-      }
-
-      console.log("Payload yang dikirim:", JSON.stringify(payload, null, 2));
 
       const res = await fetch(TRANSACTION_API, {
         method: "POST",
@@ -743,57 +785,42 @@
       });
 
       const textResponse = await res.text();
-      console.log("Raw response:", textResponse);
-      
       let json;
       try {
         json = JSON.parse(textResponse);
       } catch (e) {
-        console.error("Failed to parse JSON response:", e);
-        throw new Error("Invalid JSON response from server");
+        throw new Error("Respon dari server tidak valid.");
       }
 
       if (!res.ok) {
         const errorMsg = json.message || json.error || `Gagal menyimpan transaksi (${res.status})`;
-        
-        // Tampilkan error lebih detail
         let errorDetail = errorMsg;
         if (json.errors) {
           errorDetail = Object.entries(json.errors)
             .map(([field, errors]) => `${errors.join(', ')}`)
             .join('\n');
         }
-        
         toast(errorDetail || errorMsg, "error", 5000);
-        setConfirmLoading(false);
         return;
       }
 
-      // Simpan data untuk invoice
-      if (json.data) {
-        localStorage.setItem("invoice_data", JSON.stringify(json.data));
-      }
+      toast("Transaksi berhasil! Struk siap dicetak.", "success", 4000);
 
-      // Reset state
-      cart = [];
-      selectedCustomer = null;
-      
-      // Reset form
-      resetForms();
-      
-      renderCart();
+      // Tutup modal konfirmasi
       closeConfirmModal();
 
-      // Tampilkan notifikasi sukses
-      toast("Transaksi berhasil! Data telah disimpan.", "success", 4000);
-
-      // Navigasi ke invoice page
-      setTimeout(() => {
-        const invoiceBtn = document.querySelector('[data-page="invoice"]');
-        if (invoiceBtn) {
-          invoiceBtn.click();
-        }
-      }, 1000);
+      // Buka modal struk belanja
+      openReceiptModal(json.data || {
+        tanggal: new Date(),
+        no_invoice: "INV-" + Date.now(),
+        total_harga: calculateCartTotal(),
+        detail: cart.map(i => ({
+          produk: i.name,
+          jumlah: i.qty,
+          harga_satuan: i.price,
+          total: i.price * i.qty
+        }))
+      });
 
     } catch (err) {
       console.error("Error saat submit order:", err);
@@ -844,13 +871,10 @@
   function openConfirmModal() {
     const modal = document.getElementById("confirmModal");
     const itemsEl = document.getElementById("confirmItems");
-    const customerEl = document.getElementById("confirmCustomer");
     const totalEl = document.getElementById("confirmTotal");
     const methodEl = document.getElementById("confirmMethod");
 
     if (!modal) return;
-
-    customerEl.textContent = getCustomerDisplayName();
 
     // Daftar item
     itemsEl.innerHTML = "";
@@ -866,7 +890,7 @@
 
     // Total dan metode
     totalEl.textContent = document.getElementById("cartTotal")?.textContent || "Rp 0";
-    methodEl.textContent = document.getElementById("paymentMethod")?.value || "-";
+    if (methodEl) methodEl.textContent = "QRIS";
 
     modal.classList.remove("hidden");
     modal.classList.add("flex");
@@ -1122,6 +1146,24 @@
 
       // 7. MOBILE CART OPEN/CLOSE
       handleMobileCartEvents(e);
+
+      // 8. CLOSE RECEIPT / NEW TRANSACTION
+      if (e.target.id === "btnCloseReceipt" || e.target.closest("#btnCloseReceipt")) {
+        handleNewTransaction();
+        return;
+      }
+      if (e.target.id === "btnNewTransaction") {
+        handleNewTransaction();
+        return;
+      }
+      if (e.target.id === "btnPrintReceipt" || e.target.closest("#btnPrintReceipt")) {
+        printReceipt();
+        return;
+      }
+      if (e.target.id === "btnShareWhatsApp" || e.target.closest("#btnShareWhatsApp")) {
+        shareToWhatsApp();
+        return;
+      }
     });
 
     // FILTER STOK
@@ -1153,6 +1195,10 @@
     document.addEventListener("input", (e) => {
       if (e.target.id === "posSearch") debouncedSearch(e.target.value);
     });
+
+    window.addEventListener("resize", () => {
+      updateCartLayout();
+    });
   }
 
   function handleProductAction(actionBtn) {
@@ -1165,6 +1211,11 @@
     const existing = cart.find((i) => String(i.id) === String(id));
 
     if (action === "plus") {
+      // Buka laci otomatis jika ini item pertama
+      if (cart.length === 0) {
+        isMobileCartOpen = true;
+      }
+      
       if (existing) {
         if (existing.qty >= Number(product.stok ?? 0)) {
           toast(`Stok ${product.nama_produk} tidak mencukupi`, "warning", 3000);
@@ -1186,6 +1237,10 @@
       existing.qty--;
       if (existing.qty <= 0) {
         cart = cart.filter((i) => String(i.id) !== String(id));
+        // Jika keranjang kosong setelah dikurangi, tutup laci otomatis
+        if (cart.length === 0) {
+          isMobileCartOpen = false;
+        }
       }
     }
 
@@ -1208,6 +1263,11 @@
       return;
     }
 
+    // Buka laci otomatis jika ini item pertama
+    if (cart.length === 0) {
+      isMobileCartOpen = true;
+    }
+
     if (existing) existing.qty++;
     else
       cart.push({
@@ -1223,16 +1283,9 @@
 
   function handleCancelOrder() {
     cart = [];
+    isMobileCartOpen = false; // Tutup laci
     renderCart();
     applyPosFilter();
-
-    const mobileSheet = document.getElementById("mobileCartSheet");
-    const mobileOverlay = document.getElementById("mobileCartOverlay");
-    if (mobileSheet && mobileOverlay) {
-      mobileSheet.classList.remove("is-open");
-      mobileOverlay.classList.add("hidden");
-      document.body.classList.remove("mobile-cart-open");
-    }
   }
 
   function handleCheckout() {
@@ -1241,31 +1294,13 @@
       return;
     }
 
-    const paymentMethod = document.getElementById("paymentMethod")?.value;
-    if (!paymentMethod) {
-      toast("Pilih metode pembayaran", "warning", 3000);
-      return;
-    }
+    // Simpan keranjang belanja ke localStorage untuk halaman checkout
+    localStorage.setItem("checkout_cart", JSON.stringify(cart));
 
-    // Validasi khusus untuk pembayaran tunai (hanya untuk tampilan)
-    if (paymentMethod === "Tunai") {
-      const cashInput = document.getElementById("cashAmount");
-      const rawValue = cashInput?.dataset.raw || cashInput?.value;
-      
-      // Validasi uang tunai cukup (hanya untuk user experience)
-      if (cashInput && rawValue && rawValue.trim()) {
-        const uangBayar = parseNumber(rawValue);
-        const total = calculateCartTotal();
-        
-        if (uangBayar < total) {
-          toast("Uang bayar kurang dari total pembayaran", "error", 3000);
-          cashInput.focus();
-          return;
-        }
-      }
+    // Navigasi ke halaman checkout baru
+    if (typeof loadPage === "function") {
+      loadPage("checkout");
     }
-
-    openConfirmModal();
   }
 
   function handleCategoryFilter(chip) {
@@ -1283,26 +1318,315 @@
   }
 
   function handleMobileCartEvents(e) {
+    // 1. Klik bar hijau bawah untuk buka laci
     if (e.target.closest("#mobileCartBar")) {
-      const sheet = document.getElementById("mobileCartSheet");
-      const overlay = document.getElementById("mobileCartOverlay");
-      if (sheet && overlay) {
-        sheet.classList.add("is-open");
-        overlay.classList.remove("hidden");
-        document.body.classList.add("mobile-cart-open");
-      }
+      isMobileCartOpen = true;
+      updateCartLayout();
       return;
     }
 
-    if (e.target.closest("#mobileCartOverlay") || e.target.closest("#mobileCartHandle")) {
-      const sheet = document.getElementById("mobileCartSheet");
-      const overlay = document.getElementById("mobileCartOverlay");
-      if (sheet && overlay) {
-        sheet.classList.remove("is-open");
-        overlay.classList.add("hidden");
-        document.body.classList.remove("mobile-cart-open");
-      }
+    // 2. Klik overlay dimmed background atau tombol tutup untuk menutup laci
+    if (
+      e.target.closest("#btnCloseMobileCart") || 
+      e.target.id === "cartOverlay" || 
+      e.target.closest("#cartOverlay")
+    ) {
+      isMobileCartOpen = false;
+      updateCartLayout();
       return;
+    }
+
+    // 3. Klik area header keranjang ungu (yang mengintip di bawah) untuk membuka kembali laci
+    const cartHeader = e.target.closest(".cart-header");
+    if (cartHeader && window.innerWidth < 768 && !isMobileCartOpen) {
+      isMobileCartOpen = true;
+      updateCartLayout();
+      return;
+    }
+  }
+
+  /* =========================
+     STRUK BELANJA DAN CETAK (QRIS ONLY)
+  ========================= */
+  function openReceiptModal(transactionData) {
+    currentReceipt = transactionData;
+    const modal = document.getElementById("receiptModal");
+    if (!modal) return;
+
+    // Set Date & Invoice Code
+    const dateEl = document.getElementById("receiptDate");
+    const codeEl = document.getElementById("receiptCode");
+    if (dateEl) {
+      const dateObj = transactionData.tanggal ? new Date(transactionData.tanggal) : new Date();
+      dateEl.textContent = dateObj.toLocaleString("id-ID", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      });
+    }
+    if (codeEl) codeEl.textContent = "Invoice: " + (transactionData.no_invoice || "");
+
+    // Set Customer Info
+    const name = document.getElementById("customerName")?.value?.trim() || "Umum";
+    const address = document.getElementById("customerAddress")?.value?.trim() || "-";
+    const phone = document.getElementById("customerPhone")?.value?.trim() || "-";
+    
+    const rCustName = document.getElementById("receiptCustomerName");
+    if (rCustName) rCustName.textContent = name;
+    
+    const rCustPhone = document.getElementById("receiptCustomerPhone");
+    if (rCustPhone) rCustPhone.textContent = "No. Telp: " + phone;
+    
+    const rCustAddress = document.getElementById("receiptCustomerAddress");
+    if (rCustAddress) rCustAddress.textContent = "Alamat: " + address;
+
+    // Set Items List
+    const itemsEl = document.getElementById("receiptItems");
+    if (itemsEl) {
+      itemsEl.innerHTML = "";
+      
+      const items = transactionData.detail || cart.map(i => ({
+        produk: i.name,
+        jumlah: i.qty,
+        harga_satuan: i.price,
+        total: i.price * i.qty
+      }));
+
+      items.forEach(item => {
+        const itemRow = document.createElement("div");
+        itemRow.className = "space-y-0.5";
+        itemRow.innerHTML = `
+          <div class="flex justify-between font-medium">
+            <span>${item.produk}</span>
+            <span>Rp ${formatNumber(item.total)}</span>
+          </div>
+          <div class="text-xs text-gray-500">
+            ${item.jumlah} x Rp ${formatNumber(item.harga_satuan)}
+          </div>
+        `;
+        itemsEl.appendChild(itemRow);
+      });
+    }
+
+    // Set Total
+    const totalEl = document.getElementById("receiptTotal");
+    if (totalEl) {
+      totalEl.textContent = "Rp " + formatNumber(transactionData.total_harga || calculateCartTotal());
+    }
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+
+  function handleNewTransaction() {
+    const modal = document.getElementById("receiptModal");
+    if (modal) {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+    
+    // Clear cart and customer info
+    cart = [];
+    selectedCustomer = null;
+    resetForms();
+    renderCart();
+    loadPosProducts(); // Reload products to get latest stock levels
+  }
+
+  function printReceipt() {
+    const receiptContent = document.getElementById("receiptContent").innerHTML;
+    
+    // Create an iframe to print cleanly without messing up parent window styling
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+    doc.write(`
+      <html>
+        <head>
+          <title>Cetak Struk - Kedai Sawa</title>
+          <style>
+            /* Reset & Base Thermal Paper Style (width: 58mm/80mm compatible) */
+            * {
+              box-sizing: border-box;
+              margin: 0;
+              padding: 0;
+            }
+            body {
+              font-family: 'Courier New', Courier, monospace;
+              padding: 10px;
+              width: 290px;
+              margin: 0 auto;
+              font-size: 12px;
+              line-height: 1.4;
+              color: #000;
+              background-color: #fff;
+            }
+            
+            /* Logo Circle Print - invert for high contrast thermal printing */
+            .logo-container {
+              display: flex;
+              justify-content: center;
+              margin-bottom: 6px;
+            }
+            .logo-circle {
+              width: 48px;
+              height: 48px;
+              background-color: #000 !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .logo-img {
+              width: 32px;
+              height: 32px;
+              filter: brightness(0) invert(1); /* Ensure it stays crisp white */
+            }
+
+            /* Layout utilities mapping Tailwind */
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .flex { display: flex; align-items: center; }
+            .justify-between { justify-content: space-between; }
+            .uppercase { text-transform: uppercase; }
+            .tracking-wider { letter-spacing: 1.5px; }
+            .font-bold { font-weight: bold; }
+            
+            /* Spacing */
+            .space-y-4 > * + * { margin-top: 12px; }
+            .space-y-1.5 > * + * { margin-top: 5px; }
+            .space-y-0.5 > * + * { margin-top: 2px; }
+            .mt-1 { margin-top: 4px; }
+            .mt-1.5 { margin-top: 6px; }
+            .mt-2 { margin-top: 8px; }
+            .mb-1 { margin-bottom: 4px; }
+            .mb-2 { margin-bottom: 8px; }
+            
+            /* Typography sizing */
+            .text-base { font-size: 13px; font-weight: bold; }
+            .text-sm { font-size: 11px; }
+            .text-xs { font-size: 10px; color: #333; }
+            .text-\\[11px\\] { font-size: 9.5px; color: #444; }
+            .text-gray-500 { color: #222; }
+            .text-gray-400 { color: #444; }
+            
+            /* Dashed Borders for Authentic Receipt Look */
+            .border-b { 
+              border-bottom: 1px dashed #000; 
+              padding-bottom: 8px; 
+              margin-bottom: 8px; 
+            }
+            .border-t { 
+              border-top: 1px dashed #000; 
+              padding-top: 8px; 
+              margin-top: 8px; 
+            }
+            .pb-4 { padding-bottom: 10px; }
+            .pt-1 { padding-top: 2px; }
+            .pb-3 { padding-bottom: 6px; }
+            .pt-3 { padding-top: 6px; }
+          </style>
+        </head>
+        <body>
+          ${receiptContent}
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() {
+                window.frameElement.remove();
+              }, 100);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    doc.close();
+  }
+
+  function cleanPhoneNumber(phone) {
+    if (!phone || phone === "-") return "";
+    let cleaned = phone.replace(/[^\d]/g, ""); // Hanya simpan angka
+    if (cleaned.startsWith("0")) {
+      cleaned = "62" + cleaned.slice(1);
+    } else if (cleaned.startsWith("8")) {
+      cleaned = "62" + cleaned;
+    }
+    return cleaned;
+  }
+
+  function shareToWhatsApp() {
+    if (!currentReceipt) {
+      toast("Tidak ada data struk yang aktif", "warning", 3000);
+      return;
+    }
+
+    const invoiceCode = currentReceipt.no_invoice || "INV-XXXX";
+    const invoiceDate = document.getElementById("receiptDate")?.textContent || new Date().toLocaleString("id-ID");
+    const name = document.getElementById("receiptCustomerName")?.textContent || "Umum";
+    
+    // Ambil nomor telp dari input customerPhone atau dari receiptCustomerPhone
+    let phone = document.getElementById("customerPhone")?.value?.trim() || "";
+    if (!phone || phone === "-") {
+      const receiptPhoneText = document.getElementById("receiptCustomerPhone")?.textContent || "";
+      if (receiptPhoneText.includes("No. Telp:")) {
+        phone = receiptPhoneText.replace("No. Telp:", "").trim();
+      }
+    }
+
+    let itemsText = "";
+    const items = currentReceipt.detail || [];
+    items.forEach(item => {
+      const pName = item.produk || item.name || "";
+      const qty = item.jumlah || item.qty || 0;
+      const price = item.harga_satuan || item.price || 0;
+      const subtotal = item.total || (price * qty);
+      itemsText += `• _${pName}_ \n  ${qty} x Rp ${formatNumber(price)} = *Rp ${formatNumber(subtotal)}*\n`;
+    });
+
+    const totalText = "Rp " + formatNumber(currentReceipt.total_harga || calculateCartTotal());
+
+    const msg = `*KEDAI SAWA*
+Coffee, Eatery & Grocery
+--------------------------------------------------
+*No. Invoice:* ${invoiceCode}
+*Tanggal:* ${invoiceDate}
+*Pelanggan:* ${name}
+--------------------------------------------------
+*Detail Belanja:*
+${itemsText}
+--------------------------------------------------
+*TOTAL:* *${totalText}*
+*Metode:* QRIS (Lunas)
+--------------------------------------------------
+Terima kasih telah berbelanja di *Kedai Sawa*! 🙏
+
+_Struk digital ini sah dan diterbitkan otomatis._`;
+
+    const cleanedPhone = cleanPhoneNumber(phone);
+
+    if (cleanedPhone) {
+      const url = `https://wa.me/${cleanedPhone}?text=${encodeURIComponent(msg)}`;
+      window.open(url, "_blank");
+    } else {
+      const inputNumber = prompt("Masukkan nomor WhatsApp pelanggan (contoh: 08123456789) atau kosongkan untuk memilih langsung di WhatsApp:", "");
+      if (inputNumber === null) return; // Batal
+
+      const cleanedInput = cleanPhoneNumber(inputNumber);
+      if (cleanedInput) {
+        const url = `https://wa.me/${cleanedInput}?text=${encodeURIComponent(msg)}`;
+        window.open(url, "_blank");
+      } else {
+        const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+        window.open(url, "_blank");
+      }
     }
   }
 
@@ -1314,6 +1638,7 @@
     selectedCategory = "";
     searchKeyword = "";
     selectedCustomer = null;
+    isMobileCartOpen = false;
 
     const searchEl = document.getElementById("posSearch");
     if (searchEl) searchEl.value = "";

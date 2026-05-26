@@ -3,7 +3,7 @@
   window.__usersPageLoaded = true;
 
   window.USERS_API =
-    window.USERS_API || "http://127.0.0.1:8000/api/kasir/karyawan";
+    window.USERS_API || "https://annajiyah2bu.com/api-sawa/api/kasir/karyawan";
 
   let allUsers = [];
   let deleteUserId = null;

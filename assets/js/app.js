@@ -9,6 +9,7 @@ const PAGE_ROLES = {
   report: ["Admin"],
   orders: ["Admin", "Karyawan"],
   pos: ["Admin", "Karyawan"],
+  checkout: ["Admin", "Karyawan"],
 };
 
 /* =========================================================
@@ -22,6 +23,7 @@ const PAGE_TITLES = {
   orders: "Data Pesanan",
   pos: "Kasir",
   report: "Laporan",
+  checkout: "Checkout & Pembayaran QRIS",
 };
 
 /* =========================================================
@@ -175,6 +177,7 @@ function loadPageScript(page) {
     products: "./assets/js/products.js",
     orders: "./assets/js/orders.js",
     pos: "./assets/js/pos.js",
+    checkout: "./assets/js/checkout.js",
     invoice: "./assets/js/invoice.js",
     report: "./assets/js/report.js",
   };
@@ -196,6 +199,7 @@ function loadPageScript(page) {
       products: window.initProductsPage,
       orders: window.initOrdersPage,
       pos: window.initPosPage,
+      checkout: window.initCheckoutPage,
       invoice: window.initInvoicePage,
       report: window.initReportPage,
     };

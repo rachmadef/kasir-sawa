@@ -62,7 +62,7 @@
       }
       if (filterState.sort !== 'date-desc') params.append('sort', filterState.sort);
       
-      const url = `http://127.0.0.1:8000/api/kasir/transaksi?${params.toString()}`;
+      const url = `https://annajiyah2bu.com/api-sawa/api/kasir/transaksi?${params.toString()}`;
       
       console.log("Fetching URL:", url);
       
@@ -463,7 +463,7 @@
     `;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/kasir/transaksi/${id}`, {
+      const res = await fetch(`https://annajiyah2bu.com/api-sawa/api/kasir/transaksi/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }

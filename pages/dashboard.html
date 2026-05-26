@@ -1,81 +1,251 @@
 <div class="space-y-6">
 
+  <!-- Welcome Banner -->
+  <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-sky-600 p-6 text-white shadow-md">
+    <!-- Decorative background elements -->
+    <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+    <div class="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-white/10 blur-xl"></div>
+    
+    <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">
+          Selamat Datang Kembali, <span id="welcomeUserName" class="text-sky-200">Kasir Sawa</span>! 👋
+        </h2>
+        <p class="mt-1.5 text-sm text-indigo-100 max-w-xl">
+          Pantau ringkasan penjualan, metode pembayaran, dan aktivitas transaksi terbaru kedai Anda hari ini. Tetap berikan pelayanan terbaik!
+        </p>
+      </div>
+      <div class="flex items-center gap-3 bg-white/15 backdrop-blur-md rounded-xl p-3 border border-white/20 shadow-inner flex-shrink-0 self-start md:self-auto">
+        <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-xl text-white">
+          <i class="fa-solid fa-clock animate-pulse"></i>
+        </div>
+        <div>
+          <p class="text-xs text-indigo-100 font-medium">Hari Ini</p>
+          <p id="dashboardDate" class="text-sm font-bold text-white">-</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Stats Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
     <!-- Total Transaksi -->
-    <div class="flex items-center justify-between rounded-xl bg-white p-5 shadow-sm border-l-4 border-indigo-500">
+    <div class="group relative flex items-center justify-between rounded-2xl bg-white p-6 shadow-sm border border-gray-100 hover:border-indigo-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 cursor-default">
+      <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       <div>
-        <p class="text-sm text-gray-500">Total Transaksi</p>
-        <h3 class="mt-1 text-2xl font-bold text-gray-800" id="totalTransaksi">-</h3>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Penjualan</p>
+        <h3 class="mt-2 text-3xl font-extrabold text-gray-800 tracking-tight" id="totalTransaksi">-</h3>
+        <p class="mt-1 text-xs text-gray-400 flex items-center gap-1">
+          <span class="text-indigo-600 font-medium"><i class="fa-solid fa-cart-shopping"></i></span> Kumulatif seluruh invoice
+        </p>
       </div>
-      <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-600 text-indigo-100">
-        <!-- icon -->
+      <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition-all group-hover:bg-indigo-600 group-hover:text-white duration-300 shadow-sm">
+        <i class="fa-solid fa-wallet text-xl"></i>
       </div>
     </div>
 
     <!-- Transaksi Hari Ini -->
-    <div class="flex items-center justify-between rounded-xl bg-white p-5 shadow-sm border-l-4 border-sky-500">
+    <div class="group relative flex items-center justify-between rounded-2xl bg-white p-6 shadow-sm border border-gray-100 hover:border-sky-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 cursor-default">
+      <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-sky-400 to-blue-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       <div>
-        <p class="text-sm text-gray-500">Transaksi Hari Ini</p>
-        <h3 class="mt-1 text-2xl font-bold text-gray-800" id="transaksiHariIni">-</h3>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Transaksi Hari Ini</p>
+        <h3 class="mt-2 text-3xl font-extrabold text-gray-800 tracking-tight" id="transaksiHariIni">-</h3>
+        <p class="mt-1 text-xs text-gray-400 flex items-center gap-1">
+          <span class="text-sky-600 font-medium"><i class="fa-solid fa-arrow-trend-up"></i></span> Terhitung sejak pagi ini
+        </p>
       </div>
-      <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-sky-600 text-sky-100">
-        <!-- icon -->
+      <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 transition-all group-hover:bg-sky-500 group-hover:text-white duration-300 shadow-sm">
+        <i class="fa-solid fa-calendar-day text-xl"></i>
       </div>
     </div>
 
     <!-- Total Kategori -->
-    <div class="flex items-center justify-between rounded-xl bg-white p-5 shadow-sm border-l-4 border-emerald-500">
+    <div class="group relative flex items-center justify-between rounded-2xl bg-white p-6 shadow-sm border border-gray-100 hover:border-emerald-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 cursor-default">
+      <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       <div>
-        <p class="text-sm text-gray-500">Total Kategori</p>
-        <h3 class="mt-1 text-2xl font-bold text-gray-800" id="totalKategori">-</h3>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Kategori Menu</p>
+        <h3 class="mt-2 text-3xl font-extrabold text-gray-800 tracking-tight" id="totalKategori">-</h3>
+        <p class="mt-1 text-xs text-gray-400 flex items-center gap-1">
+          <span class="text-emerald-600 font-medium"><i class="fa-solid fa-layer-group"></i></span> Klasifikasi produk aktif
+        </p>
       </div>
-      <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-600 text-emerald-100">
-        <!-- icon -->
+      <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 transition-all group-hover:bg-emerald-500 group-hover:text-white duration-300 shadow-sm">
+        <i class="fa-solid fa-tags text-xl"></i>
       </div>
     </div>
 
     <!-- Transaksi Lunas -->
-    <div class="flex items-center justify-between rounded-xl bg-white p-5 shadow-sm border-l-4 border-yellow-500">
+    <div class="group relative flex items-center justify-between rounded-2xl bg-white p-6 shadow-sm border border-gray-100 hover:border-amber-100 hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 cursor-default">
+      <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       <div>
-        <p class="text-sm text-gray-500">Transaksi Lunas</p>
-        <h3 class="mt-1 text-2xl font-bold text-gray-800" id="transaksiLunas">-</h3>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Transaksi Sukses</p>
+        <h3 class="mt-2 text-3xl font-extrabold text-gray-800 tracking-tight" id="transaksiLunas">-</h3>
+        <p class="mt-1 text-xs text-gray-400 flex items-center gap-1">
+          <span class="text-amber-600 font-medium"><i class="fa-solid fa-circle-check"></i></span> Pembayaran QRIS tervalidasi
+        </p>
       </div>
-      <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-500 text-yellow-100">
-        <!-- icon -->
+      <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-all group-hover:bg-amber-500 group-hover:text-white duration-300 shadow-sm">
+        <i class="fa-solid fa-circle-check text-xl"></i>
       </div>
     </div>
 
   </div>
 
-  <!-- Chart + Info -->
+  <!-- Chart + Info (Grid 2 Kolom Kiri, 1 Kolom Kanan) -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- Chart -->
-    <div class="lg:col-span-2 bg-white rounded-xl shadow p-6">
-      <h3 class="font-semibold text-gray-700 mb-4">
-        Grafik Pendapatan Mingguan
-      </h3>
-      <canvas id="chartPendapatan" height="120"></canvas>
+    <!-- Kolom Kiri: Chart & Recent Transactions -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- Chart Card -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+              <i class="fa-solid fa-chart-line text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800 text-base">Grafik Pendapatan Mingguan</h3>
+              <p class="text-xs text-gray-400">Statistik penerimaan omzet 7 hari terakhir</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live Update
+            </span>
+          </div>
+        </div>
+        
+        <div class="relative w-full h-[300px]">
+          <canvas id="chartPendapatan" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Transactions Card -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 bg-sky-50 text-sky-600 rounded-xl">
+              <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800 text-base">Riwayat Transaksi Terbaru</h3>
+              <p class="text-xs text-gray-400">Aktivitas 5 invoice kasir terakhir</p>
+            </div>
+          </div>
+          <button data-page="orders" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-1 cursor-pointer">
+            Lihat Semua <i class="fa-solid fa-angle-right"></i>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-gray-100 text-gray-400 font-semibold text-xs uppercase">
+                <th class="py-3 px-4">Invoice</th>
+                <th class="py-3 px-4">Pelanggan</th>
+                <th class="py-3 px-4">Waktu</th>
+                <th class="py-3 px-4 text-right">Total Transaksi</th>
+                <th class="py-3 px-4 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardRecentTransactions" class="divide-y divide-gray-50 text-gray-600">
+              <!-- Render dinamik -->
+              <tr>
+                <td colspan="5" class="py-8 text-center text-gray-400">
+                  <i class="fa-solid fa-spinner animate-spin text-indigo-500 text-lg mb-2 block"></i>
+                  Memuat riwayat transaksi...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Metode Pembayaran -->
-    <div class="bg-white rounded-xl shadow p-6">
-      <h3 class="font-semibold text-gray-700 mb-4">
-        Metode Pembayaran
-      </h3>
+    <!-- Kolom Kanan: Payment, User Activity, Quick Actions -->
+    <div class="space-y-6">
 
-      <!-- LIST DINAMIS -->
-      <ul id="metodePembayaran"
-          class="space-y-3 text-sm text-gray-600">
+      <!-- Metode Pembayaran -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+            <i class="fa-solid fa-receipt text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-800 text-base">Metode Pembayaran</h3>
+            <p class="text-xs text-gray-400">Persentase kanal transaksi sukses</p>
+          </div>
+        </div>
 
-        <!-- Loading state -->
-        <li class="text-center text-gray-400" id="metodeLoading">
-          Memuat data...
-        </li>
+        <ul id="metodePembayaran" class="space-y-4">
+          <!-- Loading state -->
+          <li class="text-center text-gray-400 py-4" id="metodeLoading">
+            <i class="fa-solid fa-circle-notch animate-spin text-emerald-500 mr-2"></i> Memuat data...
+          </li>
+        </ul>
+      </div>
 
-      </ul>
+      <!-- Log Aktivitas Karyawan -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
+            <i class="fa-solid fa-user-shield text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-800 text-base">Log Aktivitas Kasir</h3>
+            <p class="text-xs text-gray-400">Riwayat aksi keamanan & operasional</p>
+          </div>
+        </div>
+
+        <div class="flow-root">
+          <ul id="dashboardActivityLogs" class="-mb-8 max-h-[280px] overflow-y-auto pr-1 space-y-4 scrollbar-thin">
+            <!-- Dinamis -->
+            <li class="text-center text-gray-400 py-6">
+              <i class="fa-solid fa-spinner animate-spin text-purple-500 text-lg mr-2"></i> Memuat log aktivitas...
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Quick Shortcuts -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
+            <i class="fa-solid fa-rocket text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-800 text-base">Pintasan Kasir</h3>
+            <p class="text-xs text-gray-400">Navigasi cepat fitur administrasi</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <button data-page="pos" class="flex flex-col items-center justify-center p-4 bg-indigo-50/50 hover:bg-indigo-600 text-indigo-700 hover:text-white rounded-xl border border-indigo-100/50 hover:border-indigo-600 transition-all duration-300 group cursor-pointer text-center">
+            <i class="fa-solid fa-cash-register text-xl mb-2 transition-transform duration-300 group-hover:scale-110"></i>
+            <span class="text-xs font-bold leading-none">Buka Kasir</span>
+          </button>
+
+          <button data-page="products" class="flex flex-col items-center justify-center p-4 bg-emerald-50/50 hover:bg-emerald-600 text-emerald-700 hover:text-white rounded-xl border border-emerald-100/50 hover:border-emerald-600 transition-all duration-300 group cursor-pointer text-center">
+            <i class="fa-solid fa-box-open text-xl mb-2 transition-transform duration-300 group-hover:scale-110"></i>
+            <span class="text-xs font-bold leading-none">Kelola Produk</span>
+          </button>
+
+          <button data-page="orders" class="flex flex-col items-center justify-center p-4 bg-sky-50/50 hover:bg-sky-600 text-sky-700 hover:text-white rounded-xl border border-sky-100/50 hover:border-sky-600 transition-all duration-300 group cursor-pointer text-center">
+            <i class="fa-solid fa-list-check text-xl mb-2 transition-transform duration-300 group-hover:scale-110"></i>
+            <span class="text-xs font-bold leading-none">Kelola Pesanan</span>
+          </button>
+
+          <button data-page="report" class="flex flex-col items-center justify-center p-4 bg-amber-50/50 hover:bg-amber-600 text-amber-700 hover:text-white rounded-xl border border-amber-100/50 hover:border-amber-600 transition-all duration-300 group cursor-pointer text-center">
+            <i class="fa-solid fa-chart-pie text-xl mb-2 transition-transform duration-300 group-hover:scale-110"></i>
+            <span class="text-xs font-bold leading-none">Laporan Keuangan</span>
+          </button>
+        </div>
+      </div>
+
     </div>
 
   </div>
